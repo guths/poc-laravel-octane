@@ -42,6 +42,14 @@ class LogController extends Controller
 
         $loggerFullName = sprintf('projects/%s/logs/%s', 'crack-parser-359620','PAYLIVRE');
 
+        $arguments = [
+          [
+              'name' => 'logName',
+              'operator' => '=',
+              'value' => 'PAYLIVRE'
+          ]
+        ];
+
         $oneDayAgo = date(\DateTime::RFC3339, strtotime('-24 hours'));
         $filter = sprintf(
             'logName = "%s" AND timestamp >= "%s" AND labels.env="local"',
@@ -66,5 +74,13 @@ class LogController extends Controller
     public function indexSearch()
     {
         return view('search');
+    }
+
+    public function buildArguments(array $arguments)
+    {
+        $query = '';
+
+
+//        foreach ()
     }
 }
