@@ -62,4 +62,9 @@ class LogController extends Controller
 
         return response()->json($result);
     }
+
+    public function indexSearch()
+    {
+        return view('search');
+    }
 }

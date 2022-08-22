@@ -35,6 +35,10 @@
             width: 100%;
             border-radius: 3px;
         }
+        .time-container {
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -78,6 +82,30 @@
             </div>
             <div class="flex flex-wrap -mx-3 mb-6">
                 <div class="label-container">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="from_date">
+                        From
+                    </label>
+                    <div class="time-container">
+                        <input class="input-log" type="date" name="from_date" id="from_date">
+                        <input class="input-log" type="time" name="from_time" id="from_time">
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="label-container">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="from_date">
+                        To
+                    </label>
+                    <div class="time-container">
+                        <input class="input-log" type="date" name="to_date" id="to_date">
+                        <input class="input-log" type="time" name="to_time" id="to_time">
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="flex flex-wrap -mx-3 mb-6">
+                <div class="label-container">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="merchant_id">
                         Log Level
                     </label>
@@ -91,7 +119,7 @@
                     </select>
                 </div>
             </div>
-            <button id="main-button" type="submit">Create Log</button>
+            <button id="main-button" type="submit">Search</button>
         </form>
     </div>
 </div>
