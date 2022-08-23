@@ -16,17 +16,15 @@ class LogController extends Controller
     public function store(Request $request)
     {
 //        $trace = (new \Exception())->getTrace();
-
         $labels = [
             'logContent' => $request->input('log_content'),
             'level' => $request->input('log_level'),
             'user_id' => $request->input('user_id'),
             'merchant_id' => $request->input('merchant_id'),
-            'severity' => 'INFO',
             'env' => 'local',
             'class' => __CLASS__,
             'method' => __METHOD__,
-            'line' => (string) __LINE__,
+            'line' => (string)__LINE__,
         ];
 
 
@@ -40,35 +38,40 @@ class LogController extends Controller
             'keyFile' => json_decode(file_get_contents(base_path('google/google-credentials.json')), true) //deve ser mudado para o local de sua chave
         ]);
 
-        $loggerFullName = sprintf('projects/%s/logs/%s', 'crack-parser-359620','PAYLIVRE');
+//        dd($this->listEntries('crack-parser-359620', 'PAYLIVRE'));
 
-        $arguments = [
-          [
-              'name' => 'logName',
-              'operator' => '=',
-              'value' => 'PAYLIVRE'
-          ]
-        ];
+        $loggerFullName = sprintf('projects/%s/logs/%s', 'crack-parser-359620', 'PAYLIVRE');
 
-        $oneDayAgo = date(\DateTime::RFC3339, strtotime('-24 hours'));
-        $filter = sprintf(
-            'logName = "%s" AND timestamp >= "%s" AND labels.env="local"',
-            $loggerFullName,
-            $oneDayAgo
-        );
+        $fromDate = $request->input('from_date') . $request->input('from_time');
 
-        $options = [
-            'filter' => $filter,
-        ];
-
-        $entries = $logging->entries($options);
-        $result = [];
-
-        foreach ($entries as $entry) {
-            $result[] = $entry->info();
+        if ($fromDate) {
+            $fromDate = date(\DateTime::RFC3339, strtotime($request->input('from_date') . $request->input('from_time')));
         }
 
-        return response()->json($result);
+
+        $arguments = [];
+
+        $arguments[] = $this->buildArgument('logName', '=', $loggerFullName);
+        $arguments[] = $this->buildArgument('timestamp', '>=', $fromDate ?? null);
+        $arguments[] = $this->buildArgument('textPayload', '=', $request->input('log_name'));
+        $arguments[] = $this->buildArgument('labels.merchant_id', '=', $request->input('merchant_id'));
+        $arguments[] = $this->buildArgument('labels.user_id', '=', $request->input('user_id'));
+//        $arguments[] = $this->buildArgument('severity', '=', 'ERROR');
+
+
+        $arguments = array_values(array_filter($arguments));
+        $query = $this->getQueryByArguments($arguments);
+        $options = [
+            'filter' => $query,
+        ];
+        $entries = $logging->entries($options);
+        $response = [];
+
+        foreach ($entries as $entry) {
+            $response[] = $entry->info();
+        }
+
+        return $response;
     }
 
     public function indexSearch()
@@ -76,11 +79,59 @@ class LogController extends Controller
         return view('search');
     }
 
-    public function buildArguments(array $arguments)
+    public function getQueryByArguments(array $arguments): string
     {
         $query = '';
+        foreach ($arguments as $key => $argument) {
+            $query .= sprintf('%s %s "%s"',
+                $argument['name'],
+                $argument['operator'],
+                $argument['value']);
 
 
-//        foreach ()
+            if ($key !== (count($arguments) - 1)) {
+                $query .= ' AND ';
+            }
+        }
+
+        return $query;
+    }
+
+
+    public function buildArgument(string $name, $operator, $value)
+    {
+        if (!$value || !$name || !$operator) {
+            return null;
+        }
+
+        return [
+            'name' => $name,
+            'operator' => $operator,
+            'value' => $value
+        ];
+    }
+
+    function listEntries($projectId, $loggerName)
+    {
+        $logging = new LoggingClient(['projectId' => $projectId, 'keyFile' => json_decode(file_get_contents(base_path('google/google-credentials.json')), true)]);
+        $loggerFullName = sprintf('projects/%s/logs/%s', $projectId, $loggerName);
+        $oneDayAgo = date(\DateTime::RFC3339, strtotime('-100 hours'));
+        $filter = sprintf(
+            'logName = "%s" AND timestamp >= "%s"',
+            $loggerFullName,
+            $oneDayAgo
+        );
+        $options = [
+            'filter' => $filter,
+        ];
+
+        $entries = $logging->entries($options);
+        $response = [];
+
+        foreach ($entries as $entry) {
+            $response[] = $entry->info();
+        }
+
+        return $response;
     }
 }

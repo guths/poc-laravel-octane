@@ -36,12 +36,13 @@ class SendLogJob implements ShouldQueue
                 'keyFile' => json_decode(file_get_contents('google/google-credentials.json'), true) //deve ser mudado para o local de sua chave
             ]);
 
-            $logger = $logging->logger('PAYLIVRE');
+            $logger = $logging->logger('PAYLIVRE1');
 
             // Write a log entry.
             $logger->write($this->logName, [
                 'name' => $this->logName,
                 'labels' => $this->labels,
+                'severity' => 500,
                 'resource' => [
                     'type' => 'gce_instance',
                     'labels' => [

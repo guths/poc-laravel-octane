@@ -53,7 +53,7 @@
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="log_name">
                         Log Name
                     </label>
-                    <input required class="input-log" name="log_name" id="log_name" type="text">
+                    <input class="input-log" name="log_name" id="log_name" type="text">
                 </div>
             </div>
             <div class="">
@@ -61,7 +61,7 @@
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="log_content">
                         Log Content
                     </label>
-                    <input required class="input-log" name="log_content" id="log_content" type="text">
+                    <input class="input-log" name="log_content" id="log_content" type="text">
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-6">
