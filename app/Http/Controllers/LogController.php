@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendLogJob;
 use Google\Cloud\Logging\LoggingClient;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class LogController extends Controller
 {
@@ -71,7 +74,16 @@ class LogController extends Controller
             $response[] = $entry->info();
         }
 
-        return $response;
+        return view('search', [
+            'logs' => $response
+        ]);
+    }
+
+    public function paginate($items, $perPage = 5, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
     public function indexSearch()
@@ -134,4 +146,7 @@ class LogController extends Controller
 
         return $response;
     }
+
+
+
 }
